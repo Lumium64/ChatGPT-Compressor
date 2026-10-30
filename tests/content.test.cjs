@@ -6,6 +6,8 @@ function folded(env) { return env.document.querySelectorAll('[data-ctf-collapsed
 function buttons(env) { return env.document.querySelectorAll(".ctf-turn-button"); }
 function assertNoBar(root) {
   assert.equal(root.previousElementSibling?.matches(".ctf-turn-bar") || false, false);
+  assert.equal(root.querySelector(".ctf-turn-bar"), null);
+  assert.equal(root.hasAttribute("data-ctf-container"), false);
   assert.equal(root.hasAttribute("data-ctf-collapsed"), false);
 }
 
@@ -277,7 +279,7 @@ test("a lone latest turn has no bar; it gains a control only after the next ques
   env.document.querySelector("main").insertAdjacentHTML("beforeend", '<div data-turn-key="pending"><div data-user-message-bubble="true">次の質問</div></div>');
   await env.settle();
   assert.equal(buttons(env).length, 1);
-  assert.equal(first.previousElementSibling.matches(".ctf-turn-bar"), true);
+  assert.equal(first.firstElementChild.matches(".ctf-turn-bar"), true);
   assertNoBar(env.document.querySelector('[data-turn-key="pending"]'));
   env.document.querySelector('[data-turn-key="pending"]').remove();
   await env.settle();
@@ -308,14 +310,32 @@ test("folds the first answer card and restores its form without losing interacti
   assert.equal(env.command().total, 6);
   assert.equal(buttons(env).length, 5);
   assert.equal(folded(env).length, 3);
-  assert.equal(env.window.getComputedStyle(first).display, "none");
+  assert.notEqual(env.window.getComputedStyle(first).display, "none");
+  assert.equal(first.firstElementChild.matches(".ctf-turn-bar"), true);
+  assert.equal(env.window.getComputedStyle(form.parentElement).display, "none");
   assert.match(buttons(env)[0].textContent, /Sample prompt 0/);
   buttons(env)[0].click();
-  assert.notEqual(env.window.getComputedStyle(first).display, "none");
+  assert.notEqual(env.window.getComputedStyle(form.parentElement).display, "none");
   assert.equal(first.querySelector("form"), form);
   assert.equal(choice.checked, true);
   form.querySelector("button").click();
   assert.equal(clicks, 1);
   assert.equal(env.command("collapse").collapsed, 5);
   assertNoBar(env.document.querySelector('[data-turn-key="sample-5"]'));
+});
+
+
+test("group controls participate in turn layout and fully restore when disabled", async t => {
+  const env = await environment({ html: modernConversation(6) });
+  t.after(env.close);
+  const first = env.document.querySelector('[data-turn-key="turn-0"]');
+  const prompt = first.querySelector('[data-user-message-bubble]');
+  assert.notEqual(env.window.getComputedStyle(first).display, "none");
+  assert.equal(env.window.getComputedStyle(prompt.parentElement).display, "none");
+  assert.equal(first.firstElementChild.querySelector('button'), buttons(env)[0]);
+  assert.equal(first.firstElementChild.parentElement, first);
+  await env.setSettings({ enabled: false, keepRecent: 3 });
+  assert.equal(env.document.querySelectorAll('[data-ctf-container], [data-ctf-collapsed], .ctf-turn-bar').length, 0);
+  assert.notEqual(env.window.getComputedStyle(prompt.parentElement).display, "none");
+  assert.equal(first.querySelector('[data-user-message-bubble]'), prompt);
 });

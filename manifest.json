@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ChatGPT Compressor",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "ChatGPTの過去の会話をターン単位で折りたたみ、描画負荷を減らします。",
   "permissions": ["storage"],
   "action": {

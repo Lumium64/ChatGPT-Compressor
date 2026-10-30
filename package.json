@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-compressor",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "A build-free Chrome extension that folds older ChatGPT turns.",
   "scripts": {

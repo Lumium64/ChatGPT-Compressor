@@ -110,6 +110,10 @@
           user: message,
           root,
           nodes: [root],
+          // Keep controls inside complete groups so the site's row measurement
+          // includes their height. Never hide text directly owned by a wrapper.
+          inlineControl: grouped && assistants.length > 0 && message !== root &&
+            ![...root.childNodes].some(node => node.nodeType === 3 && node.textContent.trim()),
           hasReply: grouped && assistants.length > 0,
           // Stable across React replacing an article; fallback is the element itself.
           key: root.getAttribute("data-turn-key") || root.getAttribute("data-turn-id") ||

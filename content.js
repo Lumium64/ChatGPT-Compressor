@@ -14,6 +14,7 @@
   const overrides = new Map();
   const bars = new Map();
   const hidden = new Set();
+  const containers = new Set();
 
   const observer = new MutationObserver(records => {
     if (checkRoute() || records.some(isStructuralChange)) schedule();
@@ -95,6 +96,8 @@
   function restore() {
     for (const node of hidden) node.removeAttribute("data-ctf-collapsed");
     hidden.clear();
+    for (const node of containers) node.removeAttribute("data-ctf-container");
+    containers.clear();
     for (const entry of bars.values()) entry.bar.remove();
     bars.clear();
   }
@@ -168,6 +171,7 @@
     }
     const activeKeys = new Set();
     const nextHidden = new Set();
+    const nextContainers = new Set();
     let displayNumber = 0;
     turns.forEach((turn, index) => {
       // Only add an actionable bar with a real prompt preview. Otherwise leave
@@ -181,7 +185,13 @@
         entry = createBar(turn.key);
         bars.set(turn.key, entry);
       }
-      if (entry.bar.nextElementSibling !== turn.root) turn.root.before(entry.bar);
+      if (turn.inlineControl) {
+        turn.root.setAttribute("data-ctf-container", "true");
+        nextContainers.add(turn.root);
+        if (turn.root.firstElementChild !== entry.bar) turn.root.prepend(entry.bar);
+      } else if (entry.bar.nextElementSibling !== turn.root) {
+        turn.root.before(entry.bar);
+      }
       entry.collapsed = core.shouldCollapse(turn, index, turns, settings, overrides);
       entry.button.setAttribute("aria-expanded", String(!entry.collapsed));
       setText(entry.number, `${entry.collapsed ? "▸" : "▾"} ${++displayNumber}`);
@@ -191,7 +201,9 @@
       if (entry.collapsed) {
         for (const node of turn.nodes) {
           // Don't move focus into an invisible subtree when automatically collapsing.
-          if (node.contains(document.activeElement)) entry.button.focus({ preventScroll: true });
+          if (node.contains(document.activeElement) && !entry.bar.contains(document.activeElement)) {
+            entry.button.focus({ preventScroll: true });
+          }
           nextHidden.add(node);
           node.setAttribute("data-ctf-collapsed", "true");
         }
@@ -200,6 +212,9 @@
     for (const node of hidden) if (!nextHidden.has(node)) node.removeAttribute("data-ctf-collapsed");
     hidden.clear();
     for (const node of nextHidden) hidden.add(node);
+    for (const node of containers) if (!nextContainers.has(node)) node.removeAttribute("data-ctf-container");
+    containers.clear();
+    for (const node of nextContainers) containers.add(node);
     for (const [key, entry] of bars) {
       if (!activeKeys.has(key)) {
         entry.bar.remove();
