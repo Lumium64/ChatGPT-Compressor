@@ -4,6 +4,12 @@
 
 OpenAI公式の拡張機能ではありません。
 
+## 動作画面
+
+実際のChatGPT画面で、過去の会話を折りたたんだ例です。質問の冒頭を見ながら、必要な会話を展開できます。
+
+![ChatGPT Compressorで過去の会話を折りたたんでいる実際の画面](image.png)
+
 ## 導入
 
 1. [最新リリース](https://github.com/Lumium64/ChatGPT-Compressor/releases/latest)の **Assets** から配布用ZIPをダウンロードし、展開します。
