@@ -10,7 +10,7 @@ async function popup({ available = true, storageFails = false, total = 5, diagno
   let settings = { enabled: true, keepRecent: 3 };
   const commands = [];
   window.chrome = {
-    runtime: { getManifest: () => ({ version: "0.1.5" }) },
+    runtime: { getManifest: () => ({ version: "0.1.6" }) },
     storage: { local: {
       async get() { return { turnFoldSettings: settings }; },
       async set(value) {
@@ -49,7 +49,7 @@ test("unsupported layouts show versioned structural diagnostics instead of telli
   const env = await popup({ total: 0, diagnostics: { scope: "main", legacyRoles: 0, turnGroups: 4 } });
   t.after(env.close);
   assert.equal(env.document.querySelector("#diagnostics").hidden, false);
-  assert.match(env.document.querySelector("#diagnostic-output").textContent, /0.1.5/);
+  assert.match(env.document.querySelector("#diagnostic-output").textContent, /0.1.6/);
   assert.match(env.document.querySelector("#status").textContent, /会話を認識できません/);
 });
 

@@ -18,8 +18,9 @@
   const OBSERVED_ATTRIBUTES = [...ROLE_ATTRIBUTES, ...SEARCH_ATTRIBUTES, "data-turn-key", "data-turn-id",
     "data-message-id", "data-testid", "data-test-id", "data-user-message-bubble",
     "data-chatgpt-agent-turn-start", "data-thread-find-target", "role", ...VISIBILITY_ATTRIBUTES];
-  const EXCLUDED_SELECTOR = 'nav, aside, [role="navigation"], [role="dialog"], [hidden], [aria-hidden="true"], [inert], form, textarea, [contenteditable]:not([contenteditable="false"])';
-  const EDITOR_SELECTOR = 'form, textarea, [contenteditable]:not([contenteditable="false"])';
+  const EXCLUDED_SELECTOR = '.sr-only, nav, aside, [role="navigation"], [role="dialog"], [hidden], [aria-hidden="true"], [inert], form, textarea, [contenteditable]:not([contenteditable="false"])';
+  // Response cards may contain forms; only text editors interrupt grouping.
+  const EDITOR_SELECTOR = 'textarea, [contenteditable]:not([contenteditable="false"])';
 
   function findScope(document) {
     // Prefer an explicit conversation region. A main tag is not present in every UI.

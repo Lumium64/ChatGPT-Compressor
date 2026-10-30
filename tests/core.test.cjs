@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { environment, article, modernConversation } = require("./helpers.cjs");
+const { environment, article, modernConversation, conversationWithAnswerForm } = require("./helpers.cjs");
 
 test("groups a user and all following assistant articles into a turn", async t => {
   const env = await environment({ content: false, html: article("assistant", "orphan") + article("user", "u") + article("assistant", "a1") + article("assistant", "a2") + article("user", "pending") });
@@ -119,4 +119,26 @@ test("validates stored settings and bounds previews", async t => {
   assert.equal(env.core.normalizeSettings({ enabled: "false" }).enabled, true);
   assert.equal(env.core.normalizeSettings(null).keepRecent, 3);
   assert.equal(env.core.preview(env.document.querySelector('[data-message-id="long"]')).length, 91);
+});
+
+
+test("ignores speaker labels and groups answers containing non-editor forms", async t => {
+  const env = await environment({ content: false, html: conversationWithAnswerForm(6) });
+  t.after(env.close);
+  const turns = env.core.collectTurns(env.core.findScope(env.document));
+  assert.equal(turns.length, 6);
+  for (let i = 0; i < turns.length; i++) {
+    assert.equal(turns[i].hasReply, true);
+    assert.equal(turns[i].root.getAttribute("data-turn-key"), `sample-${i}`);
+    assert.equal(env.core.preview(turns[i].user), `Sample prompt ${i}`);
+  }
+});
+
+test("still protects actual question editors in turn groups", async t => {
+  const html = conversationWithAnswerForm().replace('<div data-user-message-bubble="true">Sample prompt 0</div>',
+    '<div data-user-message-bubble="true"><textarea>Draft prompt</textarea></div>');
+  const env = await environment({ content: false, html });
+  t.after(env.close);
+  const turns = env.core.collectTurns(env.core.findScope(env.document));
+  assert.equal(turns.some(turn => turn.root.contains(env.document.querySelector("textarea"))), false);
 });

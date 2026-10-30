@@ -26,6 +26,23 @@ function modernConversation(count = 5, attribute, grouped) {
   return Array.from({ length: count }, (_, i) => modernTurn(i, attribute, grouped)).join("");
 }
 
+// A generic fixture: accessibility labels are siblings of message wrappers,
+// and an answer card contains a form. No captured conversation content is used.
+function conversationWithAnswerForm(count = 5) {
+  return Array.from({ length: count }, (_, i) => `<div data-turn-key="sample-${i}">
+    <h4 class="sr-only" data-conversation-role="user">Speaker</h4>
+    <div data-chatgpt-search-unit-key="sample-${i}:0:user">
+      <div data-content-search-unit-key="sample-${i}:0:user"><div data-user-message-bubble="true">Sample prompt ${i}</div></div>
+    </div>
+    <span hidden data-chatgpt-agent-turn-start></span>
+    <div data-chatgpt-search-unit-key="sample-${i}:1:assistant" data-content-search-unit-key="sample-${i}:1:assistant">
+      <h4 class="sr-only" data-conversation-role="assistant">Assistant</h4>
+      <p>Sample reply ${i}</p>
+      ${i === 0 ? '<form><label><input type="radio" name="choice" value="sample">Sample option</label><button type="button">Choose</button></form>' : ''}
+    </div>
+  </div>`).join("");
+}
+
 async function environment({ html = conversation(), settings, content = true } = {}) {
   const errors = [];
   const virtualConsole = new VirtualConsole();
@@ -71,4 +88,4 @@ async function environment({ html = conversation(), settings, content = true } =
   };
 }
 
-module.exports = { source, article, conversation, modernTurn, modernConversation, environment };
+module.exports = { source, article, conversation, modernTurn, modernConversation, conversationWithAnswerForm, environment };

@@ -5,7 +5,7 @@ const path = require("node:path");
 const fs = require("node:fs/promises");
 const os = require("node:os");
 const { chromium } = require("playwright");
-const { conversation, article, modernConversation, modernTurn } = require("./helpers.cjs");
+const { conversation, article, modernConversation, modernTurn, conversationWithAnswerForm } = require("./helpers.cjs");
 
 (async () => {
   const extension = path.resolve(__dirname, "..");
@@ -17,6 +17,8 @@ const { conversation, article, modernConversation, modernTurn } = require("./hel
       args: [`--disable-extensions-except=${extension}`, `--load-extension=${extension}`]
     });
     const scenarios = [
+      { name: "answer-form", html: `<main>${conversationWithAnswerForm()}</main>`, scope: "main", messages: "[data-turn-key]", perTurn: 1,
+        next: modernTurn(5) },
       { name: "legacy", html: `<main>${conversation()}</main>`, scope: "main", messages: "article", perTurn: 2,
         next: article("user", "u5") + article("assistant", "a5") },
       { name: "modern-grouped", html: `<main></main><div data-thread-find-target="conversation">${modernConversation()}</div>`,
@@ -36,7 +38,15 @@ const { conversation, article, modernConversation, modernTurn } = require("./hel
       await page.waitForSelector(".ctf-turn-button");
       assert.equal(await page.locator(".ctf-turn-button").count(), 4);
       assert.equal(await page.locator(`${scenario.messages}:visible`).count(), 3 * scenario.perTurn);
+      if (scenario.name === "answer-form") {
+        assert.equal(await page.locator('[data-turn-key="sample-0"]').isVisible(), false);
+      }
       await page.locator(".ctf-turn-button").first().click();
+      if (scenario.name === "answer-form") {
+        await page.locator('input[type="radio"]').check();
+        assert.equal(await page.locator('input[type="radio"]').isChecked(), true);
+        await page.locator('form button').click();
+      }
       assert.equal(await page.locator(`${scenario.messages}:visible`).count(), 4 * scenario.perTurn);
       await page.evaluate(({ scope, next }) => document.querySelector(scope).insertAdjacentHTML("beforeend", next), scenario);
       await page.waitForFunction(() => document.querySelectorAll(".ctf-turn-button").length === 5);

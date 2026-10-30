@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { environment, article, modernTurn, modernConversation } = require("./helpers.cjs");
+const { environment, article, modernTurn, modernConversation, conversationWithAnswerForm } = require("./helpers.cjs");
 
 function folded(env) { return env.document.querySelectorAll('[data-ctf-collapsed="true"]'); }
 function buttons(env) { return env.document.querySelectorAll(".ctf-turn-button"); }
@@ -293,4 +293,29 @@ test("a previously folded turn is restored if its preview becomes unavailable", 
   await env.settle();
   assertNoBar(root);
   assert.equal(buttons(env).length, 3);
+});
+
+
+test("folds the first answer card and restores its form without losing interaction", async t => {
+  const env = await environment({ html: conversationWithAnswerForm(6) });
+  t.after(env.close);
+  const first = env.document.querySelector('[data-turn-key="sample-0"]');
+  const form = first.querySelector("form");
+  const choice = form.querySelector("input");
+  choice.checked = true;
+  let clicks = 0;
+  form.querySelector("button").addEventListener("click", () => clicks++);
+  assert.equal(env.command().total, 6);
+  assert.equal(buttons(env).length, 5);
+  assert.equal(folded(env).length, 3);
+  assert.equal(env.window.getComputedStyle(first).display, "none");
+  assert.match(buttons(env)[0].textContent, /Sample prompt 0/);
+  buttons(env)[0].click();
+  assert.notEqual(env.window.getComputedStyle(first).display, "none");
+  assert.equal(first.querySelector("form"), form);
+  assert.equal(choice.checked, true);
+  form.querySelector("button").click();
+  assert.equal(clicks, 1);
+  assert.equal(env.command("collapse").collapsed, 5);
+  assertNoBar(env.document.querySelector('[data-turn-key="sample-5"]'));
 });
