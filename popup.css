@@ -1,0 +1,22 @@
+:root { color-scheme: light dark; font: 13px/1.6 system-ui, sans-serif; color: light-dark(#243c30, #e0eae5); background: light-dark(#fcfdfc, #19221d); }
+body { width: 320px; margin: 0; padding: 22px; box-sizing: border-box; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #dff3e8; color: #186844; font-size: 27px; }
+h1 { margin: 0; font-size: 21px; font-weight: 650; letter-spacing: -.5px; }
+header p { margin: 0; font-size: 11px; opacity: .7; }
+.setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0; }
+input { accent-color: #25845b; font: inherit; }
+input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+input[type="number"] { width: 48px; padding: 4px; border: 1px solid #87988f; border-radius: 6px; }
+.hint, .footnote { font-size: 11px; opacity: .7; }
+.status { margin: 20px 0 12px; padding: 12px; border-radius: 9px; background: light-dark(#edf4ef, #283b30); font-size: 12px; }
+.actions { display: flex; gap: 8px; }
+button { border: 1px solid light-dark(#bfcec5, #5a7364); border-radius: 8px; padding: 10px 8px; font: inherit; background: light-dark(#fff, #24352b); color: inherit; cursor: pointer; }
+.actions button { flex: 1; font-size: 12px; }
+button:hover:enabled { border-color: #25845b; background: light-dark(#e7f5ec, #344c3d); }
+button:disabled { opacity: .45; cursor: default; }
+button:focus-visible, input:focus-visible { outline: 2px solid #25845b; outline-offset: 3px; }
+.reset { width: 100%; margin-top: 8px; border-color: transparent; background: transparent; font-size: 12px; }
+.footnote { text-align: center; margin: 18px 0 0; }
+#diagnostics { margin: 12px 0; font-size: 11px; }
+#diagnostic-output { white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }

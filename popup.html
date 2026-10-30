@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChatGPT Compressor</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="core.js" defer></script>
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <header>
+    <span class="mark" aria-hidden="true">▤</span>
+    <div><h1>ChatGPT Compressor</h1><p>compress chat in ChatGPT</p></div>
+  </header>
+  <label class="setting toggle-row" for="enabled">
+    <span>折りたたみを有効にする</span>
+    <input type="checkbox" id="enabled" role="switch">
+  </label>
+  <label class="setting" for="keepRecent">
+    <span>最近のターンを表示</span>
+    <span><input id="keepRecent" type="number" min="1" max="50" step="1" value="3" required> ターン</span>
+  </label>
+  <p class="hint">それ以前の会話を自動で折りたたみます。最新のターン・返答待ちは常に表示します。</p>
+  <div class="status" id="status" role="status" aria-live="polite">会話を確認中…</div>
+  <details id="diagnostics" hidden>
+    <summary>検出情報（本文は含みません）</summary>
+    <pre id="diagnostic-output"></pre>
+  </details>
+  <div class="actions">
+    <button type="button" data-action="collapse">過去を折りたたむ</button>
+    <button type="button" data-action="expand">すべて展開</button>
+  </div>
+  <button type="button" class="reset" data-action="auto">自動設定に戻す</button>
+  <p class="footnote">会話内容は保存・送信しません。<br>折りたたみは表示上の変更です。</p>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT Compressor",
+  "version": "0.1.5",
+  "description": "ChatGPTの過去の会話をターン単位で折りたたみ、描画負荷を減らします。",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "ChatGPT Compressor",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [{
+    "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+    "js": ["core.js", "content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle"
+  }]
+}

@@ -1,0 +1,48 @@
+/* display:none excludes the entire subtree from layout, paint, and accessibility. */
+[data-ctf-collapsed="true"] {
+  display: none !important;
+}
+
+.ctf-turn-bar {
+  display: block;
+  box-sizing: border-box;
+  width: min(100% - 32px, 768px);
+  margin: 8px auto;
+  color-scheme: light dark;
+}
+
+.ctf-turn-button {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid light-dark(#e2e5e4, #414745);
+  border-radius: 10px;
+  background: light-dark(#f6f8f7, #242927);
+  color: light-dark(#46554e, #c5d5cd);
+  font: 12px/1.5 system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ctf-turn-button:hover:enabled {
+  border-color: #4b9b78;
+  background: light-dark(#eef7f2, #293c32);
+}
+
+.ctf-turn-button:focus-visible {
+  outline: 2px solid #20956b;
+  outline-offset: 3px;
+}
+
+.ctf-turn-button:disabled { cursor: default; opacity: .7; }
+.ctf-turn-number, .ctf-turn-action { flex-shrink: 0; }
+.ctf-turn-preview { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.ctf-turn-action { font-weight: 600; }
+
+html.dark .ctf-turn-bar { color-scheme: dark; }
+html.light .ctf-turn-bar { color-scheme: light; }

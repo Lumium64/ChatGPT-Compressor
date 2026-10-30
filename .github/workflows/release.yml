@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Check release version
+        run: python3 scripts/check-release.py
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+
+  publish:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: python3 scripts/package.py
+      - name: Create release and upload ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/chatgpt-compressor-*.zip --clobber
+            gh release edit "$RELEASE_TAG" \
+              --title "ChatGPT Compressor $RELEASE_TAG" \
+              --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$RELEASE_TAG" dist/chatgpt-compressor-*.zip \
+              --verify-tag \
+              --title "ChatGPT Compressor $RELEASE_TAG" \
+              --notes-file RELEASE_NOTES.md
+          fi
